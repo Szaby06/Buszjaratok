@@ -1,0 +1,11 @@
+1,Kerepes
+2,Budakalász
+3,Deák Ferenc tér
+4,West End
+5,Keleti pályaudvar
+6,Corvin
+7,Kálvin
+8,Határ út
+9,Mester utca
+10,Népliget
+11,Irodaház
