@@ -218,6 +218,50 @@ void Menetrendek_megtekintese(Menetrendek *menetrendek, int menetrendek_szama)
     }
 }
 
+//----------- ÚTVONAL TERVEZÉS ---------------------------
+
+void Utvonal_tervezes(Megallok *megallok, int megallok_szama)
+{
+    char indulo[50];
+    int ind_id=-1;
+    char cel[50];
+    int cel_id = -1;
+    printf("Adja meg az indulo megallot: \n");
+    scanf("%s",indulo);
+    while(ind_id==-1)
+    {
+        for(int i=0;i<megallok_szama;i++)
+        {
+            if(strcmp(megallok[i].nev,indulo)==0){
+                ind_id=megallok[i].id;
+            }
+        }
+        if(ind_id==-1){
+            printf("Ilyen megallo nem letezik, adjon meg ujat: \n");
+            scanf("%s",indulo);
+        }
+    }
+    printf("Adja meg a cel megallot: \n");
+    scanf("%s",cel);
+    while(cel_id==-1)
+    {
+        for(int i=0;i<megallok_szama;i++)
+        {
+            if(strcmp(megallok[i].nev,cel)==0){
+                cel_id=megallok[i].id;
+            }
+        }
+        if(cel_id==-1){
+            printf("Ilyen megallo nem letezik, adjon meg ujat: \n");
+            scanf("%s",cel);
+        }
+    }
+    printf("%d %d",ind_id,cel_id);
+}
+
+
+//----------- ÚTVONAL VÉGE ---------------------------------
+
 void Menu_futtatas(Megallok **megallok, Jaratok **jaratok, Menetrendek **menetrendek, int *megallok_szama, int *jaratok_szama, int *menetrendek_szama)
 {
     int valasztas;
@@ -272,6 +316,7 @@ void Menu_futtatas(Megallok **megallok, Jaratok **jaratok, Menetrendek **menetre
         case 4:
             system("cls");
             printf("Utvonal tervezes...\n");
+            Utvonal_tervezes(*megallok,*megallok_szama);
             do
             {
                 printf("Visszalépéshez nyomjon 0-át:");
