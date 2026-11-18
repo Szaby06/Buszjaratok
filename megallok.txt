@@ -1,12 +1,50 @@
-0,Örs
-1,Kerepes
-2,Budakalász
-3,Deák Ferenc tér
-4,West End
-5,Keleti pályaudvar
-6,Corvin
-7,Kálvin
-8,Határ út
-9,Mester utca
-10,Népliget
-11,Irodaház
+0,Örs vezér tere
+1,Deák Ferenc tér
+2,Keleti pályaudvar
+3,Nyugati pályaudvar
+4,Széll Kálmán tér
+5,Kálvin tér
+6,Corvin-negyed
+7,Népliget
+8,Kőbánya-Kispest
+9,Határ út
+10,Astoria
+11,Blaha Lujza tér
+12,Oktogon
+13,Hősök tere
+14,Göncz Árpád városközpont
+15,Árpád híd
+16,Batthyány tér
+17,Fővám tér
+18,Móricz Zsigmond körtér
+19,Gellért tér
+20,Boráros tér
+21,Bosnyák tér
+22,Mexikói út
+23,Puskás Ferenc Stadion
+24,Pillangó utca
+25,Cinkota
+26,Rákoscsaba
+27,Rákoskeresztúr városközpont
+28,Újpest-központ
+29,Újpest-városkapu
+30,Gyöngyösi utca
+31,Forgách utca
+32,Lehel tér
+33,Bajcsy-Zsilinszky út
+34,Ferenciek tere
+35,Szent Gellért tér
+36,Kosztolányi Dezső tér
+37,Ménesi út
+38,Sasadi út
+39,Kelenföld vasútállomás
+40,Etele tér
+41,Albertfalva vasútállomás
+42,Infopark
+43,Rákóczi híd budai hídfő
+44,Szent János Kórház
+45,Városmajor
+46,Déli pályaudvar
+47,Széna tér
+48,Szent Lukács Gyógyfürdő
+49,Margitsziget
