@@ -87,6 +87,7 @@ bool Beolvasas_jaratok(char path[], Jaratok **kijaratok, int *ki_db)
         // üres sorok lekezelése
         if (strlen(sor) == 0)
             continue;
+        sor[strcspn(sor,"\r\n")] ='\0';
         if (db >= noveles)
         {
             noveles *= 2;
@@ -102,9 +103,10 @@ bool Beolvasas_jaratok(char path[], Jaratok **kijaratok, int *ki_db)
             strncpy(jarat.id, nev, sizeof(jarat.id) - 1);
             jarat.id[sizeof(jarat.id) - 1] = '\0';
         }
+
         char *id = strtok(NULL, ",");
         char *ido = strtok(NULL, ",");
-        while (id != NULL && ido != NULL)
+        while (id != NULL || ido!=NULL)
         {
             if (db_megallok >= nov_megallok)
             {
@@ -220,14 +222,45 @@ void Menetrendek_megtekintese(Menetrendek *menetrendek, int menetrendek_szama)
 
 //----------- ÚTVONAL TERVEZÉS ---------------------------
 
-void Utvonal_tervezes(Megallok *megallok, int megallok_szama)
+void Kozvetlen_jaratok(Jaratok *jaratok, int jaratok_szama, char *ind,char *cel,Megallok *megallok, int *mibe, int *db, int *menetido)
+{
+    *db=0;
+    for(int i=0;i<jaratok_szama;i++)
+    {
+        int indi=-1;
+        int indido=0;
+        int celi=-1;
+        int celido=0;
+        for(int j =0;j<jaratok[i].megallok_szama;j++)
+        {
+            if(strcmp(megallok[jaratok[i].megallok[j].megallo_id].nev,ind)==0)
+                {
+                    indi=j;
+                    indido=jaratok[i].megallok[j].menetido;
+                }
+            if(strcmp(megallok[jaratok[i].megallok[j].megallo_id].nev,cel)==0)
+                {
+                    celi=j;
+                    celido=jaratok[i].megallok[j].menetido;
+                }
+        }
+        if(indi!=-1 && celi!=-1 && indi<celi)
+        {
+            mibe[*db]=i;
+            menetido[*db]=celido-indido;
+            (*db)++;
+        }
+    }
+}
+
+void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, int jaratok_szama)
 {
     char indulo[50];
     int ind_id=-1;
     char cel[50];
     int cel_id = -1;
     printf("Adja meg az indulo megallot: \n");
-    scanf("%s",indulo);
+    scanf(" %49[^\n]", indulo);
     while(ind_id==-1)
     {
         for(int i=0;i<megallok_szama;i++)
@@ -238,11 +271,11 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama)
         }
         if(ind_id==-1){
             printf("Ilyen megallo nem letezik, adjon meg ujat: \n");
-            scanf("%s",indulo);
+            scanf(" %49[^\n]", indulo);
         }
     }
     printf("Adja meg a cel megallot: \n");
-    scanf("%s",cel);
+    scanf(" %49[^\n]", cel);
     while(cel_id==-1)
     {
         for(int i=0;i<megallok_szama;i++)
@@ -253,10 +286,27 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama)
         }
         if(cel_id==-1){
             printf("Ilyen megallo nem letezik, adjon meg ujat: \n");
-            scanf("%s",cel);
+            scanf(" %49[^\n]", cel);
+
         }
     }
-    printf("%d %d",ind_id,cel_id);
+    printf("%d %d \n",ind_id,cel_id);
+    int *kozvetlen_jaratok = (int*) malloc(jaratok_szama*sizeof(int));
+    int *kozvetlen_jaratok_menetido = (int*) malloc(jaratok_szama*sizeof(int));
+    int kozvetlenek_szama=0;
+    Kozvetlen_jaratok(jaratok,jaratok_szama,indulo,cel,megallok,kozvetlen_jaratok,&kozvetlenek_szama, kozvetlen_jaratok_menetido);
+    if(kozvetlenek_szama>0)
+    {
+        for(int k =0;k<kozvetlenek_szama;k++)
+        {
+            printf("MEGVAAGY: %s \n", jaratok[kozvetlen_jaratok[k]].id);
+            printf("Menetido: %d perc \n",kozvetlen_jaratok_menetido[k]);
+        }
+    }
+    else
+        printf("Nincs közvetlen járat \n");
+    free(kozvetlen_jaratok);
+    free(kozvetlen_jaratok_menetido);
 }
 
 
@@ -316,7 +366,7 @@ void Menu_futtatas(Megallok **megallok, Jaratok **jaratok, Menetrendek **menetre
         case 4:
             system("cls");
             printf("Utvonal tervezes...\n");
-            Utvonal_tervezes(*megallok,*megallok_szama);
+            Utvonal_tervezes(*megallok,*megallok_szama,*jaratok,*jaratok_szama);
             do
             {
                 printf("Visszalépéshez nyomjon 0-át:");
