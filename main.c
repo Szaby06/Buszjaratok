@@ -8,11 +8,13 @@ typedef struct Megallok
 {
     int id;
     char nev[50];
+    struct Megallok *kov;
 } Megallok;
 
 typedef struct JaratMegallo
 {
     int megallo_id, menetido;
+    struct JaratMegallo *kov;
 } JaratMegallo;
 
 typedef struct Jaratok
@@ -20,12 +22,14 @@ typedef struct Jaratok
     char id[10];
     JaratMegallo *megallok;
     int megallok_szama;
+    struct Jaratok *kov;
 } Jaratok;
 
 typedef struct Menetrendek
 {
     char jarat_id[10];
     int ora, gyak;
+    struct Menetrendek *kov;
 } Menetrendek;
 
 typedef struct AtszallosUtvonal
@@ -46,33 +50,45 @@ bool Beolvasas_megallok(char path[], Megallok **kimegallok, int *ki_db)
     }
     char sor[256];
     int db = 0;
-    int noveles = 4;
-    Megallok *megallok = malloc(noveles * sizeof(Megallok));
+    Megallok *kezd = NULL;
+    Megallok *veg = NULL;
 
     while (fgets(sor, sizeof(sor), fp) != NULL)
     {
+        sor[strcspn(sor, "\r\n")] = '\0';
         // üres sorok lekezelése
         if (strlen(sor) == 0)
             continue;
-        if (db >= noveles)
+
+        Megallok *uj = malloc(sizeof(Megallok));
+        if(uj ==NULL)
         {
-            noveles *= 2;
-            megallok = realloc(megallok, noveles * sizeof(Megallok));
+            fclose(fp);
+            return false;
         }
-        Megallok megallo = {0};
-        if (sscanf(sor, "%d,%49[^\n]", &megallo.id, megallo.nev) == 2)
+        uj->kov=NULL;
+        if (sscanf(sor, "%d,%49[^\n]", &uj->id, uj->nev) == 2)
         {
-            megallok[db] = megallo;
+            if(kezd==NULL)
+            {
+                kezd=uj;
+                veg=uj;
+            }
+            else{
+                veg->kov=uj;
+                veg=uj;
+            }
+            db++;
         }
         else
         {
             printf("Hibas sor: %s", sor);
+            free(uj);
         }
-        db++;
+
     }
     fclose(fp);
-    megallok = realloc(megallok, db * sizeof(Megallok));
-    *kimegallok = megallok;
+    *kimegallok = kezd;
     *ki_db = db;
     return true;
 }
@@ -87,54 +103,113 @@ bool Beolvasas_jaratok(char path[], Jaratok **kijaratok, int *ki_db)
     }
     char sor[512];
     int db = 0;
-    int noveles = 4;
-    Jaratok *jaratok = malloc(noveles * sizeof(Jaratok));
+    Jaratok *kezd=NULL;
+    Jaratok *veg=NULL;
 
     while (fgets(sor, sizeof(sor), fp) != NULL)
     {
+        sor[strcspn(sor,"\r\n")] ='\0';
         // üres sorok lekezelése
         if (strlen(sor) == 0)
             continue;
-        sor[strcspn(sor,"\r\n")] ='\0';
-        if (db >= noveles)
+
+        Jaratok *uj = malloc(sizeof(Jaratok));
+        if(uj == NULL)
         {
-            noveles *= 2;
-            jaratok = realloc(jaratok, noveles * sizeof(Jaratok));
+            if (uj == NULL)
+        {
+            while (kezd != NULL)
+            {
+                Jaratok *j_kov = kezd->kov;
+                JaratMegallo *m_akt = kezd->megallok;
+                while (m_akt != NULL)
+                {
+                    JaratMegallo *m_kov = m_akt->kov;
+                    free(m_akt);
+                    m_akt = m_kov;
+                }
+                free(kezd);
+                kezd = j_kov;
+            }
+            fclose(fp);
+            return false;
         }
-        Jaratok jarat;
-        int nov_megallok = 4;
+        }
+        uj->kov=NULL;
+
+        JaratMegallo *jm_kezd=NULL;
+        JaratMegallo *jm_veg = NULL;
         int db_megallok = 0;
-        jarat.megallok = malloc(nov_megallok * sizeof(JaratMegallo));
+
         char *nev = strtok(sor, ",");
         if (nev != NULL)
         {
-            strncpy(jarat.id, nev, sizeof(jarat.id) - 1);
-            jarat.id[sizeof(jarat.id) - 1] = '\0';
+            strncpy(uj->id, nev, sizeof(uj->id) - 1);
+            uj->id[sizeof(uj->id) - 1] = '\0';
         }
 
         char *id = strtok(NULL, ",");
         char *ido = strtok(NULL, ",");
-        while (id != NULL || ido!=NULL)
+        while (id != NULL && ido!=NULL)
         {
-            if (db_megallok >= nov_megallok)
+            JaratMegallo *uj_jm= malloc(sizeof(JaratMegallo));
+            if(uj_jm==NULL)
             {
-                nov_megallok *= 2;
-                jarat.megallok = realloc(jarat.megallok, nov_megallok * sizeof(JaratMegallo));
+                while (jm_kezd != NULL)
+                {
+                    JaratMegallo *kov = jm_kezd->kov;
+                    free(jm_kezd);
+                    jm_kezd = kov;
+                }
+                free(uj);
+                while (kezd != NULL)
+                {
+                    Jaratok *j_kov = kezd->kov;
+                    JaratMegallo *m_akt = kezd->megallok;
+                    while (m_akt != NULL)
+                    {
+                        JaratMegallo *m_kov = m_akt->kov;
+                        free(m_akt);
+                        m_akt = m_kov;
+                    }
+                    free(kezd);
+                    kezd = j_kov;
+                }
+                fclose(fp);
+                return false;
             }
-            JaratMegallo megallo;
-            megallo.megallo_id = atoi(id);
-            megallo.menetido = atoi(ido);
-            jarat.megallok[db_megallok] = megallo;
+            uj_jm->megallo_id=atoi(id);
+            uj_jm->menetido=atoi(ido);
+            uj_jm->kov=NULL;
+
+            if(jm_kezd ==NULL)
+            {
+                jm_kezd = uj_jm;
+                jm_veg=uj_jm;
+            }
+            else{
+                jm_veg->kov=uj_jm;
+                jm_veg=uj_jm;
+            }
             db_megallok++;
             id = strtok(NULL, ",");
             ido = strtok(NULL, ",");
         }
-        jarat.megallok_szama = db_megallok;
-        jaratok[db] = jarat;
+        uj->megallok= jm_kezd;
+        uj->megallok_szama= db_megallok;
+        if(kezd ==NULL)
+        {
+            kezd = uj;
+            veg=uj;
+        }
+        else{
+            veg->kov=uj;
+            veg=uj;
+        }
         db++;
     }
     fclose(fp);
-    *kijaratok = jaratok;
+    *kijaratok = kezd;
     *ki_db = db;
     return true;
 }
@@ -149,33 +224,46 @@ bool Beolvasas_menetrendek(char path[], Menetrendek **kimenetrendek, int *ki_db)
     }
     char sor[64];
     int db = 0;
-    int noveles = 4;
-    Menetrendek *menetrendek = malloc(noveles * sizeof(Menetrendek));
+    Menetrendek *kezd=NULL;
+    Menetrendek *veg = NULL;
 
     while (fgets(sor, sizeof(sor), fp) != NULL)
     {
+        sor[strcspn(sor, "\r\n")] = '\0';
         // üres sorok lekezelése
         if (strlen(sor) == 0)
             continue;
-        if (db >= noveles)
+
+        Menetrendek *uj = malloc(sizeof(Menetrendek));
+        if(uj==NULL)
         {
-            noveles *= 2;
-            menetrendek = realloc(menetrendek, noveles * sizeof(Menetrendek));
+            fclose(fp);
+            return false;
         }
-        Menetrendek menetrend = {0};
-        if (sscanf(sor, "%9[^,],%d,%d[^\n]", menetrend.jarat_id, &menetrend.ora, &menetrend.gyak) == 3)
+        uj->kov=NULL;
+        if (sscanf(sor, "%9[^,],%d,%d[^\n]", uj->jarat_id, &uj->ora, &uj->gyak) == 3)
         {
-            menetrendek[db] = menetrend;
+            if(kezd==NULL)
+            {
+                kezd = uj;
+                veg=uj;
+            }
+            else
+            {
+                veg->kov=uj;
+                veg = uj;
+            }
+            db++;
         }
         else
         {
             printf("Hibas sor: %s", sor);
+            free(uj);
         }
-        db++;
+
     }
     fclose(fp);
-    menetrendek = realloc(menetrendek, db * sizeof(Menetrendek));
-    *kimenetrendek = menetrendek;
+    *kimenetrendek = kezd;
     *ki_db = db;
     return true;
 }
@@ -195,15 +283,40 @@ void Menu_megjelenites()
     printf("0. Kilépés\n");
 }
 
+char *Megallo_keres_id(Megallok *megallok, int id)
+{
+    while(megallok!=NULL)
+    {
+        if(megallok->id==id)
+        {
+            return megallok->nev;
+        }
+        megallok = megallok->kov;
+    }
+    return "Ismeretlen megallo";
+}
+
+static Megallok *Megallo_keres_nev(Megallok *megallok,char *nev)
+{
+    for (Megallok *megallo = megallok; megallo != NULL; megallo = megallo->kov)
+    {
+        if (strcmp(megallo->nev, nev) == 0)
+        {
+            return megallo;
+        }
+    }
+    return NULL;
+}
+
 void Jarat_kiirat(Jaratok *jaratok, int jaratok_szama, Megallok *megallok)
 {
-    for (int i = 0; i < jaratok_szama; i++)
+    for (Jaratok *jarat = jaratok; jarat!=NULL; jarat=jarat->kov)
     {
-        printf("Járat azonosító: %s\n", jaratok[i].id);
+        printf("Járat azonosító: %s\n", jarat->id);
         printf("Megállók:\n");
-        for (int j = 0; j < jaratok[i].megallok_szama; j++)
+        for (JaratMegallo *megallo=jarat->megallok;megallo!=NULL;megallo=megallo->kov)
         {
-            printf("Megálló: %s, Menetidõ: %d perc\n", megallok[jaratok[i].megallok[j].megallo_id].nev, jaratok[i].megallok[j].menetido);
+            printf("Megálló: %s, Menetidõ: %d perc\n", Megallo_keres_id(megallok,megallo->megallo_id), megallo->menetido);
         }
     }
 }
@@ -219,11 +332,11 @@ void Menetrendek_megtekintese(Menetrendek *menetrendek, int menetrendek_szama)
         scanf("%d", &ora);
     }
     printf("%d órakor ezek a járatok közlekednek: \n",ora);
-    for (int i = 0; i < menetrendek_szama; i++)
+    for (Menetrendek *menetrend = menetrendek;menetrend!=NULL;menetrend = menetrend->kov)
     {
-        if (menetrendek[i].ora == ora)
+        if (menetrend->ora == ora)
         {
-            printf("Járat azonosító: %s, Gyakoriság: %d perc\n", menetrendek[i].jarat_id, menetrendek[i].gyak);
+            printf("Járat azonosító: %s, Gyakoriság: %d perc\n", menetrend->jarat_id, menetrend->gyak);
         }
     }
 }
@@ -297,6 +410,62 @@ void Egy_atszallasos(Jaratok *jaratok,int jaratok_szama, char *ind,Megallok *meg
 }
 
 
+void Kozvetlen_max(int *kozvetlen_menetidok,int kozvetlen_db,int *max,int *maxi, int *kozvetlen)
+{
+    *max=kozvetlen_menetidok[*maxi];
+    *kozvetlen =1;
+    for(int i=1;i<kozvetlen_db;i++)
+    {
+        if(kozvetlen_menetidok[i]>kozvetlen_menetidok[*maxi])
+        {
+            *maxi =i;
+            *max=kozvetlen_menetidok[i];
+            *kozvetlen =1;
+        }
+    }
+}
+void Kozvetlen_min(int *kozvetlen_menetidok,int kozvetlen_db,int *min,int *mini,int *kozvetlen)
+{
+    *min=kozvetlen_menetidok[*mini];
+    *kozvetlen =1;
+    for(int i=1;i<kozvetlen_db;i++)
+    {
+        if(kozvetlen_menetidok[i]<kozvetlen_menetidok[*mini])
+        {
+            *mini =i;
+            *min = kozvetlen_menetidok[i];
+            *kozvetlen =1;
+        }
+    }
+}
+
+void Atszall_max(AtszallosUtvonal *atszallasok,int atszall_db,int *max,int *maxi,int *kozvetlen)
+{
+    for(int i=0;i<atszall_db;i++)
+    {
+        if(atszallasok[i].teljes_menetido>*max)
+        {
+            *maxi =i;
+            *max = atszallasok[i].teljes_menetido;
+            *kozvetlen =0;
+        }
+    }
+}
+void Atszall_min(AtszallosUtvonal *atszallasok,int atszall_db,int *min,int *mini,int *kozvetlen)
+{
+    for(int i=0;i<atszall_db;i++)
+    {
+        if(atszallasok[i].teljes_menetido<*min)
+        {
+            *mini =i;
+            *min = atszallasok[i].teljes_menetido;
+            *kozvetlen =0;
+        }
+    }
+}
+
+
+
 void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, int jaratok_szama)
 {
     char indulo[50];
@@ -307,12 +476,10 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, 
     scanf(" %49[^\n]", indulo);
     while(ind_id==-1)
     {
-        for(int i=0;i<megallok_szama;i++)
-        {
-            if(strcmp(megallok[i].nev,indulo)==0){
-                ind_id=megallok[i].id;
+        Megallok *m = Megallo_keres_nev(megallok,indulo);
+            if(m!=NULL){
+                ind_id=m->id;
             }
-        }
         if(ind_id==-1){
             printf("Ilyen megallo nem letezik, adjon meg ujat: \n");
             scanf(" %49[^\n]", indulo);
@@ -322,12 +489,10 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, 
     scanf(" %49[^\n]", cel);
     while(cel_id==-1)
     {
-        for(int i=0;i<megallok_szama;i++)
-        {
-            if(strcmp(megallok[i].nev,cel)==0){
-                cel_id=megallok[i].id;
+        Megallok *m = Megallo_keres_nev(megallok,indulo);
+            if(m!=NULL){
+                cel_id=m->id;
             }
-        }
         if(cel_id==-1){
             printf("Ilyen megallo nem letezik, adjon meg ujat: \n");
             scanf(" %49[^\n]", cel);
@@ -345,7 +510,7 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, 
             kozvetlenek_szama++;
         }
     }
-
+/*
     if(kozvetlenek_szama>0)
     {
         for(int k =0;k<kozvetlenek_szama;k++)
@@ -357,12 +522,12 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, 
     else
         printf("Nincs közvetlen járat \n");
 
-
+*/
     int max_talalat=100;
     AtszallosUtvonal *atszallasok = (AtszallosUtvonal*) malloc(max_talalat*sizeof(AtszallosUtvonal));
     int atszall_db=0;
     Egy_atszallasos(jaratok,jaratok_szama,indulo,megallok,cel,atszallasok,&atszall_db);
-    if(atszall_db>0)
+    /*if(atszall_db>0)
     {
         for(int i=0;i<atszall_db;i++)
         {
@@ -373,8 +538,59 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, 
             printf("Teljes menetido: %d\n",atszallasok[i].teljes_menetido);
             printf("-------------------------- \n");
         }
+    }*/
+    int max =0;
+    int maxi=0;
+    int mini=0;
+    int min=10000;
+    int kozvetlen_min=0;
+    int kozvetlen_max=0;
+    if(kozvetlenek_szama>0||atszall_db>0)
+    {
+        if(kozvetlenek_szama>0)
+        {
+            Kozvetlen_max(kozvetlen_jaratok_menetido, kozvetlenek_szama,&max,&maxi,&kozvetlen_max);
+            Kozvetlen_min(kozvetlen_jaratok_menetido, kozvetlenek_szama,&min,&mini,&kozvetlen_min);
+        }
+        if(atszall_db>0)
+        {
+            Atszall_max(atszallasok,atszall_db,&max,&maxi,&kozvetlen_max);
+            Atszall_min(atszallasok,atszall_db,&min,&mini,&kozvetlen_min);
+        }
+
+        if(kozvetlen_max)
+        {
+            printf("A max kozvetlen és jaratszama: %s, menetido: %d perc\n",jaratok[kozvetlen_jaratok[maxi]].id,max);
+        }
+        else{
+            printf("A max atszallasos \n");
+            printf("-------------------------- \n");
+            printf("1. Felszallas: %s \n",atszallasok[maxi].jarat_id1);
+            printf("Atszallas: %s \n",atszallasok[maxi].atszallas_helye);
+            printf("2. Felszallas: %s \n",atszallasok[maxi].jarat_id2);
+            printf("Teljes menetido: %d perc\n",atszallasok[maxi].teljes_menetido);
+            printf("-------------------------- \n");
+        }
+        if(kozvetlen_min)
+        {
+            printf("A min kozvetlen és jaratszama: %s, menetido: %d perc\n",jaratok[kozvetlen_jaratok[mini]].id,min);
+        }
+        else{
+            printf("A min atszallasos \n");
+            printf("-------------------------- \n");
+            printf("1. Felszallas: %s \n",atszallasok[mini].jarat_id1);
+            printf("Atszallas: %s \n",atszallasok[mini].atszallas_helye);
+            printf("2. Felszallas: %s \n",atszallasok[mini].jarat_id2);
+            printf("Teljes menetido: %d perc\n",atszallasok[mini].teljes_menetido);
+            printf("-------------------------- \n");
+        }
+    }
+    else{
+        printf("Nincs utvonal a ket megallo kozott \n");
     }
 
+
+    free(atszallasok);
     free(kozvetlen_jaratok);
     free(kozvetlen_jaratok_menetido);
 }
@@ -452,6 +668,7 @@ void Menu_futtatas(Megallok **megallok, Jaratok **jaratok, Menetrendek **menetre
             break;
         default:
             printf("Ervenytelen valasztas!\n");
+            Sleep(1500);
             break;
         }
     } while (valasztas != 0);
@@ -468,13 +685,11 @@ int main()
     Menetrendek *menetrendek = NULL;
     int menetrendek_szama = 0;
     Menu_futtatas(&megallok, &jaratok, &menetrendek, &megallok_szama, &jaratok_szama, &menetrendek_szama);
-
-    printf("%d\n", megallok_szama);
-    printf("%s\n", jaratok[1].id);
-    printf("%d\n", jaratok_szama);
-
     free(megallok);
     free(jaratok);
     free(menetrendek);
+    megallok=NULL;
+    jaratok=NULL;
+    menetrendek=NULL;
     return 0;
 }
