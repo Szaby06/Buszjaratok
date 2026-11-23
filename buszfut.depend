@@ -1,8 +1,73 @@
 # depslib dependency file v1.0
-1795447344 source:d:\progi\bme\code-blocks_buszjarat\buszfut\main.c
+1795460490 source:d:\progi\bme\code-blocks_buszjarat\buszfut\main.c
+	<stdio.h>
+	<windows.h>
+	"tipusok.h"
+	"menu.h"
+	"debugmalloc.h"
+
+1795458845 source:d:\progi\bme\code-blocks_buszjarat\buszfut\fajlkezeles.c
 	<stdio.h>
 	<stdlib.h>
-	<stdbool.h>
 	<string.h>
+	"fajlkezeles.h"
+	"debugmalloc.h"
+
+1795458704 d:\progi\bme\code-blocks_buszjarat\buszfut\fajlkezeles.h
+	<stdbool.h>
+	"tipusok.h"
+
+1795460388 d:\progi\bme\code-blocks_buszjarat\buszfut\tipusok.h
+	<stdbool.h>
+
+1795450329 d:\progi\bme\code-blocks_buszjarat\buszfut\debugmalloc.h
+	<stdbool.h>
+	<stddef.h>
+	<stdlib.h>
+	<stdio.h>
+	<ctype.h>
+	<string.h>
+	<stdarg.h>
+	<process.h>
+	<unistd.h>
+
+1795459118 source:d:\progi\bme\code-blocks_buszjarat\buszfut\jaratok_menetrendek.c
+	<stdio.h>
+	<string.h>
+	"jaratok_menetrendek.h"
+	"debugmalloc.h"
+
+1795459024 d:\progi\bme\code-blocks_buszjarat\buszfut\jaratok_menetrendek.h
+	"tipusok.h"
+
+1795459512 d:\progi\bme\code-blocks_buszjarat\buszfut\menu.h
+	"tipusok.h"
+
+1795460742 source:d:\progi\bme\code-blocks_buszjarat\buszfut\menu.c
+	<stdio.h>
+	<stdlib.h>
 	<windows.h>
+	"menu.h"
+	"fajlkezeles.h"
+	"jaratok_menetrendek.h"
+	"utvonaltervezes.h"
+	"tipusok.h"
+	"debugmalloc.h"
+
+1795459280 d:\progi\bme\code-blocks_buszjarat\buszfut\utvonaltervezes.h
+	<stdbool.h>
+	"tipusok.h"
+
+1795459402 source:d:\progi\bme\code-blocks_buszjarat\buszfut\utvonaltervezes.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"utvonaltervezes.h"
+	"jaratok_menetrendek.h"
+	"debugmalloc.h"
+
+1795460855 source:d:\progi\bme\code-blocks_buszjarat\buszfut\tipusok.c
+	<stdlib.h>
+	"tipusok.h"
+	"debugmalloc.h"
 
