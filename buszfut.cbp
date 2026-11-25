@@ -31,7 +31,23 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="debugmalloc.h" />
+		<Unit filename="fajlkezeles.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="jaratok_menetrendek.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="menu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tipusok.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="utvonaltervezes.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

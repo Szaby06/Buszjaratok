@@ -6,7 +6,7 @@
 	"menu.h"
 	"debugmalloc.h"
 
-1795458845 source:d:\progi\bme\code-blocks_buszjarat\buszfut\fajlkezeles.c
+1795468189 source:d:\progi\bme\code-blocks_buszjarat\buszfut\fajlkezeles.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -31,7 +31,7 @@
 	<process.h>
 	<unistd.h>
 
-1795459118 source:d:\progi\bme\code-blocks_buszjarat\buszfut\jaratok_menetrendek.c
+1795468160 source:d:\progi\bme\code-blocks_buszjarat\buszfut\jaratok_menetrendek.c
 	<stdio.h>
 	<string.h>
 	"jaratok_menetrendek.h"
@@ -58,7 +58,7 @@
 	<stdbool.h>
 	"tipusok.h"
 
-1795459402 source:d:\progi\bme\code-blocks_buszjarat\buszfut\utvonaltervezes.c
+1795619155 source:d:\progi\bme\code-blocks_buszjarat\buszfut\utvonaltervezes.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

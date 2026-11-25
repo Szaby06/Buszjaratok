@@ -174,7 +174,7 @@ void Utvonal_tervezes(Megallok *megallok, int megallok_szama, Jaratok *jaratok, 
             scanf(" %49[^\n]", cel);
         }
     }
-    printf("%d %d \n", ind_id, cel_id);
+    //printf("%d %d \n", ind_id, cel_id);
     Jaratok **kozvetlen_jaratok = malloc(jaratok_szama * sizeof(Jaratok *));
     int *kozvetlen_jaratok_menetido = (int *)malloc(jaratok_szama * sizeof(int));
     int kozvetlenek_szama = 0;
